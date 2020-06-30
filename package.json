@@ -1,7 +1,7 @@
 {
   "name": "covid19-react",
   "version": "0.1.2",
-  "homepage": ".",
+  "homepage": "https://deepak0404.github.io/covid19-india",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.29",
