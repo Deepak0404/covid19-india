@@ -1,7 +1,7 @@
 {
   "name": "covid19-india",
   "version": "0.1.2",
-  "homepage": "http://Deepak0404.github.io/covid19-india",
+  "homepage": "https://Deepak0404.github.io/covid19-india",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.29",
