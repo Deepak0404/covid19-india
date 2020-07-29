@@ -1,49 +1,50 @@
 import React, {useState, useEffect} from 'react';
+import Header from './Header';
+import Cards from './Cards';
+import HelpCard from './HelpCard';
+import DataTable from './DataTable';
+import Footer from './Footer';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
-import { NavLink } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const $ = require('jquery');
 $.DataTable = require('datatables.net-responsive-bs4');
 
-const DataTable = () => {
-
+const State = (props) => {
+    const stateCode = useParams().stateCode.toUpperCase();
     const [tableData, setTableData] = useState([]);
 
     useEffect(() => {
         axios
-            .get('https://api.covid19india.org/data.json')
+            .get('https://api.covid19india.org/v2/state_district_wise.json')
             .then(response => {
-                console.log(response.data.statewise);
-                setTableData(response.data.statewise);
+                // console.log(stateCode);
+                // console.log(response.data);
+                // console.log(response.data.filter(state => state==stateCode));
+                const stateData = response.data.find((s) => s.statecode === stateCode);
+                // console.log(stateData.districtData);
+                setTableData(stateData.districtData);
 
                 $('#tableData').DataTable({
                     responsive: true,
-                    "pageLength": 40,
-                    "order": [[ 4, "desc" ]], // 2nd column short
-                    "bPaginate": false, // hide pagination
-                    "bInfo": false, // hide showing entries
+                    "pageLength": 25,
+                    "order": [[ 1, "desc" ]] // 2nd column short
                 });
-                moveFirstRow();
+                // moveFirstRow();
             })
             .catch(error => {
                 console.log(error);
             });
     }, []);
 
-    function moveFirstRow(){
-        let firstRow = $('#tableData tbody tr:first-child');
-        let selectRowData = $(firstRow).html();
-        $('#tableData tbody').append(selectRowData);
-        $(firstRow).remove();
-    }
-
     return(
+      <>
+        <Header/>
+        <Cards/>
         <section id="dataTable">
             <Container>
                 <Card className="mb-4 border-0">
@@ -54,7 +55,7 @@ const DataTable = () => {
                         <Table responsive bordered hover id="tableData">
                             <thead className="thead-dark">
                                 <tr>
-                                    <th>States</th>
+                                    <th>Districts</th>
                                     <th>Confirmed</th>
                                     <th>Recovered</th>
                                     <th>Deaths</th>
@@ -64,24 +65,13 @@ const DataTable = () => {
                             <tbody>
                                 {tableData.map((tableUpdatedData, index) => (
                                     <tr key={index}>
-                                        <td>
-                                            <NavLink exact to={`/state/${tableUpdatedData.statecode}`}>{tableUpdatedData.state}</NavLink>
-                                        </td>
+                                        <td>{tableUpdatedData.district}</td>
                                         <td className="confirmed">
                                             <NumberFormat 
                                                 value={tableUpdatedData.confirmed} 
                                                 thousandSeparator={true} 
                                                 thousandsGroupStyle="lakh"
                                                 displayType={'text'} />
-                                            <sub>
-                                                &nbsp;
-                                                <FontAwesomeIcon icon={faArrowUp}/>
-                                                <NumberFormat 
-                                                    value={tableUpdatedData.deltaconfirmed} 
-                                                    thousandSeparator={true} 
-                                                    thousandsGroupStyle="lakh"
-                                                    displayType={'text'} />
-                                            </sub>
                                         </td>
                                         <td className="recovered">
                                             <NumberFormat 
@@ -89,31 +79,13 @@ const DataTable = () => {
                                                 thousandSeparator={true} 
                                                 thousandsGroupStyle="lakh"
                                                 displayType={'text'} />
-                                            <sub>
-                                                &nbsp;
-                                                <FontAwesomeIcon icon={faArrowUp}/>
-                                                <NumberFormat 
-                                                    value={tableUpdatedData.deltarecovered} 
-                                                    thousandSeparator={true} 
-                                                    thousandsGroupStyle="lakh"
-                                                    displayType={'text'} />
-                                            </sub>
                                         </td>
                                         <td className="deceased">
                                             <NumberFormat 
-                                                value={tableUpdatedData.deaths} 
+                                                value={tableUpdatedData.deceased} 
                                                 thousandSeparator={true} 
                                                 thousandsGroupStyle="lakh"
                                                 displayType={'text'} />
-                                            <sub>
-                                                &nbsp;
-                                                <FontAwesomeIcon icon={faArrowUp}/>
-                                                <NumberFormat 
-                                                    value={tableUpdatedData.deltadeaths} 
-                                                    thousandSeparator={true} 
-                                                    thousandsGroupStyle="lakh"
-                                                    displayType={'text'} />
-                                            </sub>
                                         </td>
                                         <td className="active">
                                             <NumberFormat 
@@ -130,7 +102,9 @@ const DataTable = () => {
                 </Card>
             </Container>
         </section>
+        <Footer/>
+      </>
     )
 }
 
-export default DataTable;
+export default State;
